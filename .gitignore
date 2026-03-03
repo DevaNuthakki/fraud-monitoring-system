@@ -10,3 +10,6 @@ model/*.pkl
 
 # System files
 .DS_Store
+
+# Processed data
+data/processed/
