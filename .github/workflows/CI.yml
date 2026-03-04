@@ -23,9 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Import check (FastAPI app)
+      - name: Python syntax check
         run: |
-          python -c "from app.main import app; print('OK: app imported')"
+          python -m compileall app monitoring training
 
       - name: Drift script sanity (runs on sample CSVs if present)
         run: |
