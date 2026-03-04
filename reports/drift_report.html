@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Drift Report</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: left; }
+    th { background: #fafafa; }
+    .muted { color: #6b7280; }
+    code { background: #f3f4f6; padding: 2px 6px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Drift Detection Report</h1>
+  <div class="card">
+    <p><b>Overall Status:</b> <span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></p>
+    <p class="muted">Baseline rows: <code>227845</code> | Live rows: <code>56962</code></p>
+    <p class="muted">Drift Score (0-1 capped): <code>0.0001</code></p>
+  </div>
+
+  <div class="card">
+    <h2>Thresholds</h2>
+    <ul>
+      <li>PSI warn: <code>0.1</code>, PSI drift: <code>0.25</code></li>
+      <li>KL warn: <code>0.05</code>, KL drift: <code>0.1</code></li>
+      <li>Overall warn ratio: <code>0.1</code>, Overall drift ratio: <code>0.2</code></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Feature-level Metrics</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>PSI</th>
+          <th>PSI Status</th>
+          <th>KL (live || baseline)</th>
+          <th>KL Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>V12</td><td>0.000429</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000215</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V8</td><td>0.000394</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000196</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V6</td><td>0.000292</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000146</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V18</td><td>0.000252</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000126</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V19</td><td>0.000243</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000122</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V11</td><td>0.000218</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000109</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V10</td><td>0.000211</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000106</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V21</td><td>0.000209</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000105</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V9</td><td>0.000208</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000104</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V16</td><td>0.000198</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000099</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V25</td><td>0.000193</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000096</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V27</td><td>0.000187</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000093</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V5</td><td>0.000178</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000089</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V4</td><td>0.000159</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000080</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>Time</td><td>0.000152</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000076</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V7</td><td>0.000148</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000074</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V13</td><td>0.000144</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000072</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V26</td><td>0.000138</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000069</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V22</td><td>0.000135</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000068</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V24</td><td>0.000133</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000066</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V2</td><td>0.000116</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000058</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V1</td><td>0.000106</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000053</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>Amount</td><td>0.000097</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000049</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V28</td><td>0.000088</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000044</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V23</td><td>0.000087</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000044</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V17</td><td>0.000073</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000037</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V3</td><td>0.000073</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000037</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V14</td><td>0.000070</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000035</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V15</td><td>0.000063</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000032</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr><tr><td>V20</td><td>0.000021</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td><td>0.000011</td><td><span style="padding:2px 8px;border-radius:999px;background:#1a7f37;color:white;font-weight:600;">OK</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
