@@ -1,18 +1,28 @@
-# Dataset files
-data/
-data/*.csv
-data/processed/
+# Generated reports/artifacts
+reports/*.html
+reports/*.png
+reports/*.jpg
+reports/*.jpeg
+reports/*.pdf
 
-# Model files
-model/*.joblib
-model/*.pkl
+# Local environment / secrets
+.env
+.env.*
+*.env
 
-# Python virtual environment
-.venv/
+# Logs
+*.log
+logs/
 
-# Python cache
-__pycache__/
-*.pyc
+# Jupyter / notebooks
+.ipynb_checkpoints/
+*.ipynb
 
-# System files
+# Build / packaging
+dist/
+build/
+*.egg-info/
+
+# OS junk
 .DS_Store
+Thumbs.db
