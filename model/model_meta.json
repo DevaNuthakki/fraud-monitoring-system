@@ -1,0 +1,5 @@
+{
+    "model_version": "v1.0",
+    "trained_on": "creditcard.csv",
+    "notes": "Logistic regression with tuned threshold"
+  }
