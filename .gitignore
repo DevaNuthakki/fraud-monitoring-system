@@ -26,3 +26,6 @@ build/
 # OS junk
 .DS_Store
 Thumbs.db
+
+__pycache__/
+data/
