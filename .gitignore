@@ -1,5 +1,7 @@
 # Dataset files
+data/
 data/*.csv
+data/processed/
 
 # Model files
 model/*.joblib
@@ -8,8 +10,9 @@ model/*.pkl
 # Python virtual environment
 .venv/
 
+# Python cache
+__pycache__/
+*.pyc
+
 # System files
 .DS_Store
-
-# Processed data
-data/processed/
