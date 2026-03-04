@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Import check (FastAPI app)
+        run: |
+          python -c "from app.main import app; print('OK: app imported')"
+
+      - name: Drift script sanity (runs on sample CSVs if present)
+        run: |
+          if [ -f data/processed/X_train.csv ] && [ -f data/processed/X_test.csv ]; then
+            python monitoring/drift_report.py --baseline data/processed/X_train.csv --live data/processed/X_test.csv --out reports/drift_report_ci.html
+            echo "OK: drift report generated"
+          else
+            echo "Skipping drift run (CSV files not in repo due to .gitignore)"
+          fi
