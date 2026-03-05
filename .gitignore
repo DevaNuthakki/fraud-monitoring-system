@@ -29,3 +29,7 @@ Thumbs.db
 
 __pycache__/
 data/
+
+# Allow small sample files for drift monitoring workflow
+!data/sample/
+!data/sample/*.csv
