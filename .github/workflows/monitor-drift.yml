@@ -1,8 +1,10 @@
 name: Monitor Data Drift
 
 on:
+  # Runs automatically every 6 hours
   schedule:
     - cron: "0 */6 * * *"
+  # Lets you run it manually from GitHub Actions
   workflow_dispatch:
 
 jobs:
@@ -20,8 +22,19 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run drift monitoring
         run: |
-          python monitoring/drift_report.py
+          mkdir -p reports
+          python monitoring/drift_report.py \
+            --baseline data/sample/baseline.csv \
+            --live data/sample/live.csv \
+            --out reports/drift_report.html
+
+      - name: Upload drift report
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: reports/drift_report.html
