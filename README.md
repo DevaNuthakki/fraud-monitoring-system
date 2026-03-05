@@ -10,26 +10,24 @@ This project demonstrates a full **MLOps pipeline**, including model training, A
 
 This system performs three main tasks:
 
-1. **Fraud Detection**
-   - A trained machine learning model predicts whether a transaction is fraudulent.
+### 1. Fraud Detection
+A trained machine learning model predicts whether a transaction is fraudulent.
 
-2. **API Service**
-   - A FastAPI application exposes the model as an API endpoint.
+### 2. API Service
+A FastAPI application exposes the model as an API endpoint.
 
-3. **Automated Monitoring**
-   - A scheduled GitHub Actions workflow monitors data drift and generates reports.
+### 3. Automated Monitoring
+A scheduled GitHub Actions workflow monitors data drift and generates reports.
 
 ---
 
 # Architecture
 
-
-Data → Model Training → FastAPI API → Docker → Cloud Run Deployment
-↓
-GitHub Actions Monitoring
-↓
+Data → Model Training → FastAPI API → Docker → Cloud Run Deployment  
+↓  
+GitHub Actions Monitoring  
+↓  
 Drift Detection Report
-
 
 ---
 
@@ -68,7 +66,7 @@ Example features:
 - transaction time
 - account behavior patterns
 
-The model outputs:
+Model output:
 
 
 0 → legitimate transaction
@@ -106,15 +104,11 @@ The API is containerized using Docker.
 
 Build the image:
 
-
 docker build -t fraud-monitoring-system .
-
 
 Run locally:
 
-
 docker run -p 8000:8000 fraud-monitoring-system
-
 Cloud Deployment
 
 The container is deployed to Google Cloud Run.
@@ -143,7 +137,7 @@ live dataset (incoming data)
 
 Drift Metrics
 
-Two statistical metrics are used:
+Two statistical metrics are used to detect drift.
 
 Population Stability Index (PSI)
 
@@ -153,7 +147,7 @@ Typical thresholds:
 
 PSI Value	Meaning
 < 0.1	No change
-0.1 - 0.25	Moderate shift
+0.1 – 0.25	Moderate shift
 > 0.25	Significant drift
 KL Divergence
 
@@ -173,7 +167,7 @@ feature-level drift metrics
 
 statistical thresholds
 
-Example report fields:
+Example report fields include:
 
 baseline rows
 
@@ -211,21 +205,15 @@ How to Run Locally
 
 Install dependencies:
 
-
 pip install -r requirements.txt
-
 
 Run the API:
 
-
 uvicorn app.main:app --reload
 
-
-API will be available at:
-
+The API will be available at:
 
 http://localhost:8000
-
 Future Improvements
 
 Possible enhancements include:
