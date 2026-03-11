@@ -10,6 +10,9 @@ reports/*.pdf
 .env.*
 *.env
 
+# Virtual environments
+venv/
+
 # Logs
 *.log
 logs/
@@ -31,6 +34,11 @@ Thumbs.db
 __pycache__/
 *.pyc
 *.pyo
+
+# Generated monitoring files
+data/predictions.csv
+reports/drift_summary.json
+reports/alerts.json
 
 # Data (ignore large datasets)
 data/*

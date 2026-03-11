@@ -4,7 +4,8 @@ import time
 import pandas as pd
 from joblib import dump
 
-from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from sklearn.calibration import CalibratedClassifierCV
 from sklearn.metrics import (
     average_precision_score,
     roc_auc_score,
@@ -17,9 +18,9 @@ from sklearn.metrics import (
 # ----------------------------
 # Config
 # ----------------------------
-THRESHOLD = 0.31  # from your tune_threshold.py result
-DATA_DIR = os.path.join("..", "data", "processed")
-MODEL_DIR = os.path.join("..", "model")
+THRESHOLD = 0.70
+DATA_DIR = os.path.join("data", "processed")
+MODEL_DIR = os.path.join("model")
 
 X_TRAIN_PATH = os.path.join(DATA_DIR, "X_train.csv")
 Y_TRAIN_PATH = os.path.join(DATA_DIR, "y_train.csv")
@@ -27,7 +28,9 @@ X_TEST_PATH = os.path.join(DATA_DIR, "X_test.csv")
 Y_TEST_PATH = os.path.join(DATA_DIR, "y_test.csv")
 
 MODEL_PATH = os.path.join(MODEL_DIR, "fraud_model.joblib")
+CALIBRATOR_PATH = os.path.join(MODEL_DIR, "calibrator.joblib")
 THRESHOLD_PATH = os.path.join(MODEL_DIR, "threshold.json")
+MODEL_META_PATH = os.path.join(MODEL_DIR, "model_meta.json")
 
 
 def load_processed():
@@ -64,44 +67,77 @@ def evaluate(y_true, y_prob, threshold: float):
 
 
 def main():
-    print("✅ Loading processed data...")
-    X_train, y_train, X_test, y_test = load_processed()
-    print(f"Train: {X_train.shape}  Test: {X_test.shape}")
+    print("Loading processed data...")
+    X_train_full, y_train_full, X_test, y_test = load_processed()
+    print(f"Train full: {X_train_full.shape}  Test: {X_test.shape}")
 
-    # Train the final model (same idea as your best model from compare_models)
-    print("\n✅ Training final RandomForest model...")
+    neg = (y_train_full == 0).sum()
+    pos = (y_train_full == 1).sum()
+    scale_pos_weight = neg / pos if pos > 0 else 1.0
+
+    print("\nTraining calibrated XGBoost model...")
     start = time.time()
 
-    model = RandomForestClassifier(
+    base_model = XGBClassifier(
         n_estimators=300,
+        max_depth=6,
+        learning_rate=0.05,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        scale_pos_weight=scale_pos_weight,
+        objective="binary:logistic",
+        eval_metric="logloss",
         random_state=42,
-        n_jobs=-1,
-        class_weight="balanced",  # helps because fraud is rare
+        n_jobs=-1
     )
-    model.fit(X_train, y_train)
+
+    calibrator = CalibratedClassifierCV(
+        estimator=base_model,
+        method="sigmoid",
+        cv=3
+    )
+    calibrator.fit(X_train_full, y_train_full)
 
     train_time = time.time() - start
-    print(f"Training time: {train_time:.2f} sec")
+    print(f"Calibrated model training time: {train_time:.2f} sec")
 
-    # Evaluate on test set using the chosen threshold
-    print("\n✅ Evaluating with threshold =", THRESHOLD)
-    y_prob = model.predict_proba(X_test)[:, 1]
+    print(f"\nEvaluating calibrated model with threshold = {THRESHOLD}")
+    y_prob = calibrator.predict_proba(X_test)[:, 1]
     metrics = evaluate(y_test, y_prob, THRESHOLD)
 
-    print("\n=== Final Model Metrics (Test) ===")
+    print("\n=== Final Calibrated Model Metrics (Test) ===")
     for k, v in metrics.items():
         print(f"{k}: {v}")
 
-    # Save model + threshold
     os.makedirs(MODEL_DIR, exist_ok=True)
 
-    dump(model, MODEL_PATH)
+    # Save calibrator as main serving artifact
+    dump(calibrator, CALIBRATOR_PATH)
+
+    # Optional: save threshold
     with open(THRESHOLD_PATH, "w") as f:
         json.dump({"fraud_threshold": THRESHOLD}, f, indent=2)
 
-    print("\n✅ Saved files:")
-    print(" -", MODEL_PATH)
+    # Metadata
+    with open(MODEL_META_PATH, "w") as f:
+        json.dump(
+            {
+                "model_version": "xgboost-calibrated-v1",
+                "model_type": "XGBClassifier + CalibratedClassifierCV",
+                "calibration_method": "sigmoid",
+                "training_time_sec": round(train_time, 2),
+                "threshold": THRESHOLD,
+                "feature_count": int(X_train_full.shape[1]),
+                "feature_names": X_train_full.columns.tolist(),
+            },
+            f,
+            indent=2,
+        )
+
+    print("\nSaved files:")
+    print(" -", CALIBRATOR_PATH)
     print(" -", THRESHOLD_PATH)
+    print(" -", MODEL_META_PATH)
 
 
 if __name__ == "__main__":

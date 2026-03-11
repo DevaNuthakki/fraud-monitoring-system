@@ -1,7 +1,6 @@
 import pandas as pd
 
-DATA_PATH = "../data/creditcard.csv"
-
+DATA_PATH = "data/raw/creditcard.csv"
 df = pd.read_csv(DATA_PATH)
 
 print("Dataset loaded successfully!")

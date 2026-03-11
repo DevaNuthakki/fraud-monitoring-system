@@ -11,9 +11,11 @@ from sklearn.metrics import (
     confusion_matrix,
 )
 
+from xgboost import XGBClassifier
+
 # Paths
-PROCESSED_DIR = "../data/processed"
-REPORTS_DIR = "../reports"
+PROCESSED_DIR = "data/processed"
+REPORTS_DIR = "reports"
 
 def evaluate_model(name, model, X_train, y_train, X_test, y_test):
     print("\n==============================")
@@ -27,7 +29,6 @@ def evaluate_model(name, model, X_train, y_train, X_test, y_test):
     if hasattr(model, "predict_proba"):
         y_prob = model.predict_proba(X_test)[:, 1]
     else:
-        # fallback (not expected here)
         scores = model.decision_function(X_test)
         y_prob = (scores - scores.min()) / (scores.max() - scores.min() + 1e-12)
 
@@ -37,7 +38,7 @@ def evaluate_model(name, model, X_train, y_train, X_test, y_test):
     roc = roc_auc_score(y_test, y_prob)
     pr = average_precision_score(y_test, y_prob)
 
-    cm = confusion_matrix(y_test, y_pred)  # [[TN FP],[FN TP]]
+    cm = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = cm.ravel()
 
     print(f"Training time: {train_time:.2f} seconds")
@@ -74,6 +75,13 @@ def main():
     # Ensure reports folder exists
     os.makedirs(REPORTS_DIR, exist_ok=True)
 
+    # Class imbalance ratio for XGBoost
+    neg = (y_train == 0).sum()
+    pos = (y_train == 1).sum()
+    scale_pos_weight = neg / pos if pos > 0 else 1.0
+
+    print(f"scale_pos_weight for XGBoost: {scale_pos_weight:.4f}")
+
     # Models
     models = [
         (
@@ -99,6 +107,21 @@ def main():
                 max_iter=300,
                 learning_rate=0.05,
                 random_state=42
+            ),
+        ),
+        (
+            "XGBoost",
+            XGBClassifier(
+                n_estimators=300,
+                max_depth=6,
+                learning_rate=0.05,
+                subsample=0.8,
+                colsample_bytree=0.8,
+                scale_pos_weight=scale_pos_weight,
+                objective="binary:logistic",
+                eval_metric="logloss",
+                random_state=42,
+                n_jobs=-1
             ),
         ),
     ]

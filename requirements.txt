@@ -1,7 +1,13 @@
+streamlit
+requests
 fastapi
-uvicorn[standard]
-pydantic
-joblib
-numpy
+uvicorn
 pandas
+numpy
+joblib
+pydantic
+xgboost
 scikit-learn
+evidently
+matplotlib
+apscheduler

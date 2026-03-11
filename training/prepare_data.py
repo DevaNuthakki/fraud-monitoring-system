@@ -3,8 +3,8 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-DATA_PATH = "../data/creditcard.csv"
-OUT_DIR = "../data/processed"
+DATA_PATH = "data/raw/creditcard.csv"
+OUT_DIR = "data/processed"
 TEST_SIZE = 0.20
 RANDOM_STATE = 42
 
