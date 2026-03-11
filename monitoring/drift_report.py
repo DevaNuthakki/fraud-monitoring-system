@@ -13,14 +13,13 @@ Expected inputs:
 from __future__ import annotations
 
 import argparse
-import math
 import html
+import math
 from dataclasses import dataclass
 from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-
 
 EPS = 1e-12
 
@@ -31,38 +30,42 @@ class Thresholds:
     psi_drift: float = 0.25
     kl_warn: float = 0.05
     kl_drift: float = 0.1
-    overall_warn_ratio: float = 0.10   # if >=10% features drift/warn -> overall warn
-    overall_drift_ratio: float = 0.20  # if >=20% features drift -> overall drift
+    overall_warn_ratio: float = 0.10
+    overall_drift_ratio: float = 0.20
 
 
 def safe_div(a: np.ndarray, b: np.ndarray) -> np.ndarray:
     return a / np.clip(b, EPS, None)
 
 
-def get_shared_numeric_columns(baseline: pd.DataFrame, live: pd.DataFrame) -> List[str]:
-    # keep only numeric shared columns
+def get_shared_numeric_columns(
+    baseline: pd.DataFrame,
+    live: pd.DataFrame,
+) -> List[str]:
     shared = [c for c in baseline.columns if c in live.columns]
     shared_numeric = []
     for c in shared:
-        if pd.api.types.is_numeric_dtype(baseline[c]) and pd.api.types.is_numeric_dtype(live[c]):
+        if (
+            pd.api.types.is_numeric_dtype(baseline[c])
+            and pd.api.types.is_numeric_dtype(live[c])
+        ):
             shared_numeric.append(c)
     return shared_numeric
 
 
 def quantile_bins(series: pd.Series, n_bins: int) -> np.ndarray:
-    # Quantile-based edges; ensure unique and strictly increasing
     qs = np.linspace(0, 1, n_bins + 1)
     edges = np.quantile(series.dropna().values, qs)
     edges = np.unique(edges)
+
     if len(edges) < 3:
-        # fallback to min/max with padding
         vmin = float(series.min())
         vmax = float(series.max())
         if math.isclose(vmin, vmax):
             vmin -= 1.0
             vmax += 1.0
         edges = np.linspace(vmin, vmax, n_bins + 1)
-    # Expand ends slightly to include all values
+
     edges[0] = edges[0] - 1e-9
     edges[-1] = edges[-1] + 1e-9
     return edges
@@ -82,7 +85,6 @@ def psi(expected_p: np.ndarray, actual_p: np.ndarray) -> float:
 
 
 def kl_divergence(p: np.ndarray, q: np.ndarray) -> float:
-    # KL(p || q)
     p = np.clip(p, EPS, None)
     q = np.clip(q, EPS, None)
     return float(np.sum(p * np.log(p / q)))
@@ -99,13 +101,13 @@ def classify(value: float, warn: float, drift: float) -> str:
 def compute_feature_metrics(
     baseline: pd.Series,
     live: pd.Series,
-    n_bins: int
+    n_bins: int,
 ) -> Tuple[float, float]:
     edges = quantile_bins(baseline, n_bins=n_bins)
     p_base = hist_probs(baseline, edges)
     p_live = hist_probs(live, edges)
     psi_v = psi(p_base, p_live)
-    kl_v = kl_divergence(p_live, p_base)  # live vs baseline
+    kl_v = kl_divergence(p_live, p_base)
     return psi_v, kl_v
 
 
@@ -113,8 +115,17 @@ def overall_status(rows: List[Dict], thr: Thresholds) -> str:
     n = len(rows)
     if n == 0:
         return "OK"
-    drift_count = sum(1 for r in rows if r["psi_status"] == "DRIFT" or r["kl_status"] == "DRIFT")
-    warn_or_drift = sum(1 for r in rows if r["psi_status"] != "OK" or r["kl_status"] != "OK")
+
+    drift_count = sum(
+        1
+        for r in rows
+        if r["psi_status"] == "DRIFT" or r["kl_status"] == "DRIFT"
+    )
+    warn_or_drift = sum(
+        1
+        for r in rows
+        if r["psi_status"] != "OK" or r["kl_status"] != "OK"
+    )
 
     drift_ratio = drift_count / n
     warn_ratio = warn_or_drift / n
@@ -134,11 +145,13 @@ def drift_score(rows: List[Dict]) -> float:
     """
     if not rows:
         return 0.0
+
     per = []
     for r in rows:
-        psi_n = min(float(r["psi"]), 1.0)          # cap PSI at 1.0
-        kl_n = min(float(r["kl"]), 1.0)            # cap KL at 1.0
-        per.append(0.7 * psi_n + 0.3 * kl_n)       # weighted
+        psi_n = min(float(r["psi"]), 1.0)
+        kl_n = min(float(r["kl"]), 1.0)
+        per.append(0.7 * psi_n + 0.3 * kl_n)
+
     return float(np.mean(per))
 
 
@@ -152,8 +165,16 @@ def render_html(
     score: float,
 ) -> None:
     def badge(status: str) -> str:
-        color = {"OK": "#1a7f37", "WARN": "#9a6700", "DRIFT": "#cf222e"}.get(status, "#57606a")
-        return f'<span style="padding:2px 8px;border-radius:999px;background:{color};color:white;font-weight:600;">{html.escape(status)}</span>'
+        color = {
+            "OK": "#1a7f37",
+            "WARN": "#9a6700",
+            "DRIFT": "#cf222e",
+        }.get(status, "#57606a")
+        return (
+            f'<span style="padding:2px 8px;border-radius:999px;'
+            f'background:{color};color:white;font-weight:600;">'
+            f"{html.escape(status)}</span>"
+        )
 
     table_rows = []
     for r in rows:
@@ -195,7 +216,10 @@ def render_html(
     <ul>
       <li>PSI warn: <code>{thr.psi_warn}</code>, PSI drift: <code>{thr.psi_drift}</code></li>
       <li>KL warn: <code>{thr.kl_warn}</code>, KL drift: <code>{thr.kl_drift}</code></li>
-      <li>Overall warn ratio: <code>{thr.overall_warn_ratio}</code>, Overall drift ratio: <code>{thr.overall_drift_ratio}</code></li>
+            <li>
+        Overall warn ratio: <code>{thr.overall_warn_ratio}</code>,
+        Overall drift ratio: <code>{thr.overall_drift_ratio}</code>
+      </li>
     </ul>
   </div>
 
@@ -225,10 +249,27 @@ def render_html(
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--baseline", required=True, help="Path to baseline CSV (training distribution)")
-    ap.add_argument("--live", required=True, help="Path to live CSV (recent prediction features)")
-    ap.add_argument("--out", default="drift_report.html", help="Output HTML report path")
-    ap.add_argument("--bins", type=int, default=10, help="Number of bins for histograms")
+    ap.add_argument(
+        "--baseline",
+        required=True,
+        help="Path to baseline CSV (training distribution)",
+    )
+    ap.add_argument(
+        "--live",
+        required=True,
+        help="Path to live CSV (recent prediction features)",
+    )
+    ap.add_argument(
+        "--out",
+        default="drift_report.html",
+        help="Output HTML report path",
+    )
+    ap.add_argument(
+        "--bins",
+        type=int,
+        default=10,
+        help="Number of bins for histograms",
+    )
     ap.add_argument("--psi-warn", type=float, default=0.1)
     ap.add_argument("--psi-drift", type=float, default=0.25)
     ap.add_argument("--kl-warn", type=float, default=0.05)
@@ -247,20 +288,27 @@ def main() -> None:
 
     features = get_shared_numeric_columns(baseline, live)
     if not features:
-        raise SystemExit("No shared numeric columns found between baseline and live CSVs.")
+        raise SystemExit(
+            "No shared numeric columns found between baseline and live CSVs."
+        )
 
     rows: List[Dict] = []
     for feat in features:
-        psi_v, kl_v = compute_feature_metrics(baseline[feat], live[feat], n_bins=args.bins)
-        rows.append({
-            "feature": feat,
-            "psi": psi_v,
-            "kl": kl_v,
-            "psi_status": classify(psi_v, thr.psi_warn, thr.psi_drift),
-            "kl_status": classify(kl_v, thr.kl_warn, thr.kl_drift),
-        })
+        psi_v, kl_v = compute_feature_metrics(
+            baseline[feat],
+            live[feat],
+            n_bins=args.bins,
+        )
+        rows.append(
+            {
+                "feature": feat,
+                "psi": psi_v,
+                "kl": kl_v,
+                "psi_status": classify(psi_v, thr.psi_warn, thr.psi_drift),
+                "kl_status": classify(kl_v, thr.kl_warn, thr.kl_drift),
+            }
+        )
 
-    # sort most drifted first (by psi then kl)
     rows.sort(key=lambda r: (r["psi"], r["kl"]), reverse=True)
 
     overall = overall_status(rows, thr)
@@ -281,7 +329,10 @@ def main() -> None:
     top = rows[:5]
     print("Top 5 drifted features:")
     for r in top:
-        print(f"  {r['feature']}: PSI={r['psi']:.4f}({r['psi_status']}), KL={r['kl']:.4f}({r['kl_status']})")
+        print(
+            f"  {r['feature']}: PSI={r['psi']:.4f}({r['psi_status']}), "
+            f"KL={r['kl']:.4f}({r['kl_status']})"
+        )
 
 
 if __name__ == "__main__":

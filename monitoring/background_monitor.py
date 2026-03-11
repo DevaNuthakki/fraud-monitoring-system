@@ -12,6 +12,7 @@ DRIFT_SCRIPT = os.path.join(BASE_DIR, "monitoring", "generate_evidently_drift.py
 # Drift Job
 # ===============================
 
+
 def run_drift_monitoring():
     print("\n===============================")
     print("Running drift monitoring job")

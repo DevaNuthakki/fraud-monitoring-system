@@ -11,3 +11,6 @@ scikit-learn
 evidently
 matplotlib
 apscheduler
+pytest
+flake8
+httpx
